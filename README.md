@@ -1,9 +1,9 @@
 # u-pack
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-erasable_syntax-3178C6?logo=typescript&logoColor=white)
-![Node](https://img.shields.io/badge/node-%3E%3D22.6-5FA04E?logo=nodedotjs&logoColor=white)
+![Node](https://img.shields.io/badge/node-%3E%3D22.18-5FA04E?logo=nodedotjs&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-B45309)
-![Tests](https://img.shields.io/badge/tests-16_passing-2F6F44)
+[![CI](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
 
 Defeat lost-in-the-middle by construction: rank your context, fold the
@@ -49,21 +49,46 @@ combiner). Plug an embedding similarity in when you have one.
 
 ## Budgeting without silent caps
 
-`maxUnits` (with a pluggable `measure`, word count by default) drops the
-lowest-scored items first, and every drop is returned in `packed.dropped`
-with its score and size. A prompt that quietly lost evidence reads as
-"covered everything" when it did not; this one tells you.
+`maxUnits` (with a pluggable `measure`, word count by default) keeps the
+highest-scored prefix that fits and cuts at the first item that does not,
+so a small weak item can never outlive a stronger one that was dropped.
+Every cut item is returned in `packed.dropped` with its score and size,
+and placements keep their pre-drop ranks. A prompt that quietly lost
+evidence reads as "covered everything" when it did not; this one tells
+you.
 
-## Run
+## Measured, not asserted
+
+`npm run bench` runs 1,000 seeded needle-among-distractors layouts:
+
+```
+  insertion order: mean edge distance 0.230, at an edge 9.7%
+  folded:          mean edge distance 0.000, at an edge 100.0%
+```
+
+That measures layout, which is what u-pack controls; the recall benefit
+of edge placement is the paper's claim, and the fold is what makes your
+context eligible for it.
+
+## Install
 
 ```bash
-npm install       # dev-only: typescript
-npm test          # node's built-in runner, via --experimental-strip-types
+npm install github:m-sanchez/u-pack#v1.1.0
+```
+
+Not yet on npm; the pinned git tag is the supported install and CI proves
+the packed tarball imports cleanly. Zero runtime dependencies.
+
+## Develop
+
+```bash
+npm ci            # dev-only: typescript
+npm test
+npm run bench
 npm run typecheck
 ```
 
-Node 22.6+ (erasable-syntax TypeScript, node runs it directly). Zero
-runtime dependencies.
+Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 
 ## The tests are the point
 
@@ -73,5 +98,7 @@ runtime dependencies.
 | the weakest is interior from n = 6 up | the middle absorbs what the model would lose anyway |
 | fold is total and input-order independent | layout is deterministic; ties break on id, not arrival |
 | the needle among twenty distractors lands at an edge | insertion order buried it at position 10; the fold surfaces it |
-| budget drops are returned, strongest first | nothing leaves the prompt without a record |
+| budget cuts at the first overflow; the weak cannot outlive the strong | the reviewer counterexample is a pinned test |
+| a non-finite score is refused | an arbitrary layout defeats the point |
+| placement ranks survive a budget cut | provenance over renumbering |
 | recency is 0.5 at exactly one half-life | the decay curve is the documented one |

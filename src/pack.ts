@@ -55,8 +55,15 @@ export interface PackOptions {
 export const countWords = (item: Item): number =>
   item.content.split(/\s+/).filter(Boolean).length;
 
-/** Deterministic ranking: score descending, id ascending on ties. */
+/** Deterministic ranking: score descending, id ascending on ties. A
+ * non-finite score is refused at the boundary; NaN ordering is arbitrary
+ * and an arbitrary layout defeats the whole point. */
 export function rankItems(items: Item[]): Item[] {
+  for (const item of items) {
+    if (!Number.isFinite(item.score)) {
+      throw new TypeError(`item "${item.id}" has a non-finite score (${item.score})`);
+    }
+  }
   return [...items].sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
@@ -77,31 +84,35 @@ function regionOf(index: number, total: number): Region {
   return 'interior';
 }
 
-/** Rank, budget, and fold. Nothing is dropped silently: every item that
- * does not fit comes back in `dropped` with its score and size. */
+/** Rank, budget, and fold. The budget keeps the highest-scored prefix
+ * that fits and cuts at the FIRST item that does not: a small weak item
+ * can never outlive a stronger one that was dropped. Nothing is dropped
+ * silently; every cut item comes back in `dropped` with its score. */
 export function pack(items: Item[], opts: PackOptions = {}): Packed {
   const measure = opts.measure ?? countWords;
   const ranked = rankItems(items);
 
   let kept = ranked;
-  const dropped: Dropped[] = [];
+  let dropped: Dropped[] = [];
   let unitsUsed = ranked.reduce((sum, i) => sum + measure(i), 0);
   if (opts.maxUnits != null) {
     kept = [];
     unitsUsed = 0;
-    for (const item of ranked) {
-      const units = measure(item);
-      if (unitsUsed + units <= opts.maxUnits) {
-        kept.push(item);
-        unitsUsed += units;
-      } else {
-        dropped.push({ id: item.id, score: item.score, units });
+    for (let i = 0; i < ranked.length; i++) {
+      const units = measure(ranked[i]);
+      if (unitsUsed + units > opts.maxUnits) {
+        dropped = ranked.slice(i).map((item) => ({ id: item.id, score: item.score, units: measure(item) }));
+        break;
       }
+      kept.push(ranked[i]);
+      unitsUsed += units;
     }
   }
 
   const order = fold(kept);
-  const rankOf = new Map(kept.map((item, r) => [item.id, r]));
+  // rank is the PRE-drop rank, so a placement traces back to the original
+  // ranking even after a budget cut
+  const rankOf = new Map(ranked.map((item, r) => [item.id, r]));
   const placements = order.map((item, index) => ({
     id: item.id,
     rank: rankOf.get(item.id)!,

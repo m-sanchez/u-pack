@@ -99,3 +99,31 @@ test('render joins in fold order with optional labels', () => {
   const labelled = render(packed, { label: (i, p) => `[${p.index}:${i.id}]`, separator: '\n' });
   assert.equal(labelled, '[0:c]\nCCC\n[1:b]\nBBB\n[2:a]\nAAA');
 });
+
+test("the reviewer's counterexample: a small weak item cannot outlive a dropped stronger one", () => {
+  const items = [
+    item('big-strong', 10, 'five words of strong content'),
+    item('small-mid', 5, 'three mid words'),
+    item('small-weak', 1, 'two words'),
+    item('tiny-weakest', 0, 'word')
+  ];
+  const packed = pack(items, { maxUnits: 9 });
+  assert.deepEqual(packed.order.map((x) => x.id).sort(), ['big-strong', 'small-mid'].sort());
+  assert.deepEqual(packed.dropped.map((d) => d.id), ['small-weak', 'tiny-weakest']);
+});
+
+test('a non-finite score is refused at the boundary', () => {
+  assert.throws(() => pack([item('bad', NaN)]), /non-finite score/);
+  assert.throws(() => pack([item('worse', Infinity)]), /non-finite score/);
+});
+
+test('placement rank survives a budget cut: pre-drop ranks, not renumbered', () => {
+  const items = [
+    item('first', 9, 'one two three four'),
+    item('second', 5, 'five six seven eight'),
+    item('third', 2, 'nine ten')
+  ];
+  const packed = pack(items, { maxUnits: 8 });
+  const ranks = Object.fromEntries(packed.placements.map((p) => [p.id, p.rank]));
+  assert.deepEqual(ranks, { first: 0, second: 1 });
+});
