@@ -135,6 +135,7 @@ Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 | the fold ties sorting at top-1 and wins from rank 2 on | the published comparison carries the tie, not just the wins |
 | the README's bench table is the bench's own output | the published numbers cannot drift from the code |
 | budget cuts at the first overflow; the weak cannot outlive the strong | the reviewer counterexample is a pinned test |
+| an item bigger than the whole budget empties the prompt | the surprising edge of cut-at-first-overflow, pinned rather than discovered live |
 | a non-finite score is refused | an arbitrary layout defeats the point |
 | a duplicate id is refused | placements are keyed by id; duplicates would report a rank that is not the item's |
 | placement ranks survive a budget cut | provenance over renumbering |

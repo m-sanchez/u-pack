@@ -50,11 +50,15 @@ test('the needle among twenty distractors sits at an edge, not mid-list', () => 
   const distractors = Array.from({ length: 20 }, (_, i) => item(`noise${i}`, 0.1));
   const needle = item('needle', 0.9);
   const inserted = [...distractors.slice(0, 10), needle, ...distractors.slice(10)];
-  // Insertion order buries it at position 10 of 21; the fold surfaces it.
+  // Insertion order buries it dead centre at position 10 of 21; the fold surfaces it.
+  // (The old assertion here was `notEqual(inserted[10].id === 'needle' && region,
+  // 'interior')`, which collapses its left operand to a boolean and so could not
+  // fail on the burial half of the claim at all.)
+  assert.equal(inserted.findIndex((x) => x.id === 'needle'), (inserted.length - 1) / 2);
   const packed = pack(inserted);
   const placed = packed.placements.find((p) => p.id === 'needle')!;
   assert.equal(placed.index, 0);
-  assert.notEqual(inserted[10].id === 'needle' && placed.region, 'interior');
+  assert.equal(placed.region, 'leading');
 });
 
 test('a budget drops the weakest first and reports every drop', () => {
@@ -138,4 +142,24 @@ test('a duplicate id is refused at the boundary: provenance cannot be trusted ot
   );
   // and the guard must not fire on distinct ids that merely share a score
   assert.doesNotThrow(() => pack([item('a', 5), item('b', 5)]));
+});
+
+test('an item bigger than the whole budget takes the prompt with it, in writing', () => {
+  // The sharpest edge of "cuts at the FIRST item that does not fit": when that
+  // item is rank 0, order is empty. Surprising, so it is pinned rather than
+  // left to be discovered in production - and nothing is lost silently.
+  const packed = pack(
+    [item('appendix', 9, 'a '.repeat(60)), item('usable', 5, 'two words')],
+    { maxUnits: 20 }
+  );
+  assert.deepEqual(packed.order, []);
+  assert.deepEqual(packed.placements, []);
+  assert.deepEqual(
+    packed.dropped.map((d) => [d.id, d.units]),
+    [
+      ['appendix', 60],
+      ['usable', 2]
+    ]
+  );
+  assert.equal(packed.unitsUsed, 0);
 });
