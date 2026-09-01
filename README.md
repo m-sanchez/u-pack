@@ -19,8 +19,9 @@ generalised into a standalone package. First published 2026-08-31.*
 
 Models recall the start and the end of a long prompt better than the middle
 (Liu et al., [Lost in the Middle](https://arxiv.org/abs/2307.03172)). The
-obvious layout, most relevant first, puts your second-best evidence in
-exactly the region the model reads worst. u-pack deals ranked items
+obvious layout, most relevant first, uses one of those two edges and then
+walks the rest of your ranking steadily into the middle — and it spends the
+other edge, the closing slot, on your weakest item. u-pack deals ranked items
 alternately to the front and the back instead: rank 1 opens the prompt,
 rank 2 closes it, and the tail of the ranking converges on the middle,
 where the least is lost.
@@ -68,16 +69,39 @@ you.
 
 ## Measured, not asserted
 
-`npm run bench` runs 1,000 seeded needle-among-distractors layouts:
+The question worth answering is not "does the fold beat random insertion
+order" — nobody ships random order. It is "I already sort my chunks by
+score, so what does folding change?". `npm run bench` compares all three
+layouts over the same seeded trials, with random scores so no rank is baked
+into the fixture:
 
-```
-  insertion order: mean edge distance 0.230, at an edge 9.7%
-  folded:          mean edge distance 0.000, at an edge 100.0%
-```
+Mean edge distance over 1,000 seeded trials of 21 items
+(0 = at a prompt edge, 0.5 = dead centre):
 
-That measures layout, which is what u-pack controls; the recall benefit
-of edge placement is the paper's claim, and the fold is what makes your
-context eligible for it.
+| layout | top-1 | top-2 | top-5 | top-10 | worst-ranked |
+| :-- | --: | --: | --: | --: | --: |
+| insertion order | 0.238 | 0.232 | 0.237 | 0.238 | 0.243 |
+| sort by score, descending | 0.000 | 0.025 | 0.100 | 0.225 | 0.000 |
+| folded (u-pack) | 0.000 | 0.000 | 0.040 | 0.100 | 0.500 |
+
+For the top-k rows lower is better: those are your strongest items and you
+want them near an edge. **At top-1 the fold and plain sorting tie at
+0.000.** For a single strongest item folding buys you nothing — both put it
+at index 0. The gain starts at rank 2 and grows: 0.040 vs 0.100 across the
+top 5 (2.5x closer to an edge), 0.100 vs 0.225 across the top 10.
+
+The last column reverses, and it is the sharper argument. Sorting
+descending parks your *weakest* item at index 20 — a prime edge slot — at
+0.000. The fold parks it dead centre at 0.500 and gives that slot to rank 2
+instead.
+
+Two caveats on the table, both pinned by tests. The bottom two rows are
+structural rather than statistical: at a fixed item count the fold's
+geometry is exact, so those numbers do not move with the seed and only the
+insertion-order row carries sampling noise. And this measures *layout*,
+which is what u-pack controls; that edge placement helps recall is the
+paper's claim, not this benchmark's. The fold is what makes your context
+eligible for it.
 
 ## Install
 
@@ -107,6 +131,9 @@ Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 | the weakest is interior from n = 6 up | the middle absorbs what the model would lose anyway |
 | fold is total and input-order independent | layout is deterministic; ties break on id, not arrival |
 | the needle among twenty distractors lands at an edge | insertion order buried it at position 10; the fold surfaces it |
+| sorting spends the closing edge on the weakest item | the fold's real argument, measured; it does not bury rank 2 |
+| the fold ties sorting at top-1 and wins from rank 2 on | the published comparison carries the tie, not just the wins |
+| the README's bench table is the bench's own output | the published numbers cannot drift from the code |
 | budget cuts at the first overflow; the weak cannot outlive the strong | the reviewer counterexample is a pinned test |
 | a non-finite score is refused | an arbitrary layout defeats the point |
 | a duplicate id is refused | placements are keyed by id; duplicates would report a rank that is not the item's |

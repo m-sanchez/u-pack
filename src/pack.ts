@@ -3,8 +3,11 @@
  *
  * Models recall the start and end of a long prompt better than the middle
  * (Liu et al., "Lost in the Middle"). Sorting context by relevance and
- * concatenating it top-down puts your second-best item in exactly the
- * region the model reads worst. The fold deals ranked items alternately to
+ * concatenating it top-down uses one of those two edges and then walks the
+ * rest of the ranking steadily into the middle, and it spends the other
+ * edge - the closing slot - on the weakest item you have. The measured
+ * comparison is in bench/layout.ts and the README table it prints.
+ * The fold deals ranked items alternately to
  * the front and the back instead: rank 1 opens the prompt, rank 2 closes
  * it, rank 3 follows the opener, rank 4 precedes the closer, and the tail
  * of the ranking meets in the middle where the least is lost. */

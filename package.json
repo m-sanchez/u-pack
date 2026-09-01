@@ -22,7 +22,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "bench": "node bench/needle.ts"
+    "bench": "node bench/layout.ts"
   },
   "repository": {
     "type": "git",
