@@ -73,10 +73,11 @@ test('a budget drops the weakest first and reports every drop', () => {
     packed.order.map((x) => x.id),
     ['big-strong', 'small-mid']
   );
-  assert.deepEqual(
-    packed.dropped.map((d) => d.id),
-    ['small-weak', 'tiny-weakest']
-  );
+  // README: "every cut item is returned in packed.dropped with its score and size"
+  assert.deepEqual(packed.dropped, [
+    { id: 'small-weak', score: 1, units: 2 },
+    { id: 'tiny-weakest', score: 0, units: 1 }
+  ]);
   assert.equal(packed.unitsUsed, 8);
   assert.equal(packed.unitsBudget, 8);
 });
@@ -95,6 +96,11 @@ test('countWords ignores blank runs', () => {
 test('fold of the empty and singleton lists is itself', () => {
   assert.deepEqual(fold([]), []);
   assert.deepEqual(fold([1]), [1]);
+});
+
+test('fold reproduces the sequence the README diagram publishes', () => {
+  // README: ranking 1 2 3 4 5 6 7 -> folded 1 3 5 7 6 4 2
+  assert.deepEqual(fold([1, 2, 3, 4, 5, 6, 7]), [1, 3, 5, 7, 6, 4, 2]);
 });
 
 test('render joins in fold order with optional labels', () => {

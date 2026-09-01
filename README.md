@@ -109,7 +109,7 @@ eligible for it.
 npm install @m-sanchez/u-pack
 ```
 
-Also installable from a pinned git tag: `github:m-sanchez/u-pack#v1.1.1`. CI
+Also installable from a pinned git tag: `github:m-sanchez/u-pack#v2.0.0`. CI
 proves the packed tarball imports cleanly. Zero runtime dependencies.
 
 ## Develop
@@ -124,6 +124,9 @@ npm run typecheck
 Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 
 ## The tests are the point
+
+Every falsifiable claim on this page is mapped to the test that enforces
+it in [CLAIMS.md](CLAIMS.md). A sample:
 
 | Test | Claim |
 | :-- | :-- |

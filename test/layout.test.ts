@@ -47,6 +47,13 @@ test('the fold ties sorting at top-1 and beats it from rank 2 on', () => {
     );
   }
 
+  // The figures the README quotes in prose beside the table, pinned as published.
+  assert.equal(folded.topK[2].toFixed(3), '0.040');
+  assert.equal(sorted.topK[2].toFixed(3), '0.100');
+  assert.equal((sorted.topK[2] / folded.topK[2]).toFixed(1), '2.5');
+  assert.equal(folded.topK[3].toFixed(3), '0.100');
+  assert.equal(sorted.topK[3].toFixed(3), '0.225');
+
   // And reversed for the weakest item, where a HIGH edge distance is the win:
   // sorting parks it at an edge, the fold parks it in the middle.
   assert.equal(sorted.worst, 0);
