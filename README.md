@@ -6,6 +6,8 @@
 [![CI](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
 
+> **In plain English:** this fits as much useful context as possible into a limited space, and refuses cleanly when something will not fit instead of silently dropping it.
+
 Defeat lost-in-the-middle by construction: rank your context, fold the
 strongest to the prompt's edges, and let the weakest meet in the middle.
 
