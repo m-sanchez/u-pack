@@ -127,3 +127,15 @@ test('placement rank survives a budget cut: pre-drop ranks, not renumbered', () 
   const ranks = Object.fromEntries(packed.placements.map((p) => [p.id, p.rank]));
   assert.deepEqual(ranks, { first: 0, second: 1 });
 });
+
+test('a duplicate id is refused at the boundary: provenance cannot be trusted otherwise', () => {
+  // Before this guard, pack([doc1@9, doc1@1, doc2@5]) reported the score-9 item
+  // as rank 2 (the worst rank) and emitted no rank 0 at all, because rankOf was
+  // a Map keyed by id and the last duplicate won.
+  assert.throws(
+    () => pack([item('doc1', 9), item('doc1', 1), item('doc2', 5)]),
+    /appears more than once/
+  );
+  // and the guard must not fire on distinct ids that merely share a score
+  assert.doesNotThrow(() => pack([item('a', 5), item('b', 5)]));
+});

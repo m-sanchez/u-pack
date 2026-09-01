@@ -45,6 +45,9 @@ packed.placements;    // id, rank, index, region for every item
 packed.dropped;       // whatever the budget cut, strongest first, in writing
 ```
 
+Item ids must be unique. `placements` is keyed by id, so a repeated id would
+report one item's rank against another's content; `pack` throws instead.
+
 ## Honest limits
 
 Placement helps recall; it does not guarantee it. And placement quality is
@@ -106,5 +109,6 @@ Node 22.18+ (erasable-syntax TypeScript; node runs the sources directly).
 | the needle among twenty distractors lands at an edge | insertion order buried it at position 10; the fold surfaces it |
 | budget cuts at the first overflow; the weak cannot outlive the strong | the reviewer counterexample is a pinned test |
 | a non-finite score is refused | an arbitrary layout defeats the point |
+| a duplicate id is refused | placements are keyed by id; duplicates would report a rank that is not the item's |
 | placement ranks survive a budget cut | provenance over renumbering |
 | recency is 0.5 at exactly one half-life | the decay curve is the documented one |

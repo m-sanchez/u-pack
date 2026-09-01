@@ -55,14 +55,22 @@ export interface PackOptions {
 export const countWords = (item: Item): number =>
   item.content.split(/\s+/).filter(Boolean).length;
 
-/** Deterministic ranking: score descending, id ascending on ties. A
- * non-finite score is refused at the boundary; NaN ordering is arbitrary
- * and an arbitrary layout defeats the whole point. */
+/** Deterministic ranking: score descending, id ascending on ties. Two
+ * inputs are refused at the boundary. A non-finite score, because NaN
+ * ordering is arbitrary and an arbitrary layout defeats the whole point.
+ * And a repeated id, because `placements` is keyed by id: duplicates make
+ * the rank column report the last duplicate's rank for every copy, so the
+ * provenance table would silently disagree with the layout it describes. */
 export function rankItems(items: Item[]): Item[] {
+  const seen = new Set<string>();
   for (const item of items) {
     if (!Number.isFinite(item.score)) {
       throw new TypeError(`item "${item.id}" has a non-finite score (${item.score})`);
     }
+    if (seen.has(item.id)) {
+      throw new TypeError(`item "${item.id}" appears more than once; ids must be unique for placement provenance`);
+    }
+    seen.add(item.id);
   }
   return [...items].sort((a, b) => b.score - a.score || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
