@@ -1,6 +1,9 @@
 {
-  "name": "u-pack",
-  "version": "1.1.0",
+  "name": "@m-sanchez/u-pack",
+  "version": "1.1.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Defeat lost-in-the-middle by construction: rank context items, fold the strongest to the prompt's edges, budget without silent drops.",
   "type": "module",
   "main": "./dist/index.js",

@@ -23,5 +23,5 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/scratch" && cd "$RUNNER_TEMP/scratch"
           npm init -y > /dev/null
-          npm install "$GITHUB_WORKSPACE"/u-pack-*.tgz
-          node -e "import('u-pack').then(m => { if (Object.keys(m).length === 0) throw new Error('empty module'); console.log('import ok'); })"
+          npm install "$GITHUB_WORKSPACE"/m-sanchez-u-pack-*.tgz
+          node -e "import('@m-sanchez/u-pack').then(m => { if (Object.keys(m).length === 0) throw new Error('empty module'); console.log('import ok'); })"

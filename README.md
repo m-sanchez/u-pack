@@ -5,6 +5,7 @@
 ![Dependencies](https://img.shields.io/badge/dependencies-0-B45309)
 [![CI](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml/badge.svg)](https://github.com/m-sanchez/u-pack/actions/workflows/test.yml)
 ![License](https://img.shields.io/badge/license-MIT-6E6E6E)
+[![npm](https://img.shields.io/npm/v/@m-sanchez/u-pack?color=CB3837&logo=npm&logoColor=white)](https://www.npmjs.com/package/@m-sanchez/u-pack)
 
 > **In plain English:** this fits as much useful context as possible into a limited space, and refuses cleanly when something will not fit instead of silently dropping it.
 
@@ -12,6 +13,9 @@ Defeat lost-in-the-middle by construction: rank your context, fold the
 strongest to the prompt's edges, and let the weakest meet in the middle.
 
 [More tools](https://github.com/m-sanchez) · [Working rules](https://miguelsanchez.co.uk/ethics)
+
+*Provenance: this came out of one body of production LLM work, extracted and
+generalised into a standalone package. First published 2026-08-31.*
 
 Models recall the start and the end of a long prompt better than the middle
 (Liu et al., [Lost in the Middle](https://arxiv.org/abs/2307.03172)). The
@@ -28,7 +32,7 @@ folded:    1  3  5  7  6  4  2
 ```
 
 ```ts
-import { pack, render, overlap } from 'u-pack';
+import { pack, render, overlap } from '@m-sanchez/u-pack';
 
 const score = overlap('who paid this account most often this quarter');
 const packed = pack(
@@ -75,11 +79,11 @@ context eligible for it.
 ## Install
 
 ```bash
-npm install github:m-sanchez/u-pack#v1.1.0
+npm install @m-sanchez/u-pack
 ```
 
-Not yet on npm; the pinned git tag is the supported install and CI proves
-the packed tarball imports cleanly. Zero runtime dependencies.
+Also installable from a pinned git tag: `github:m-sanchez/u-pack#v1.1.1`. CI
+proves the packed tarball imports cleanly. Zero runtime dependencies.
 
 ## Develop
 
