@@ -28,15 +28,20 @@
     "type": "git",
     "url": "git+https://github.com/m-sanchez/u-pack.git"
   },
+  "homepage": "https://github.com/m-sanchez/u-pack#readme",
+  "bugs": {
+    "url": "https://github.com/m-sanchez/u-pack/issues"
+  },
   "author": "Miguel Sanchez <contact@miguelsanchez.co.uk>",
   "license": "MIT",
   "keywords": [
     "llm",
-    "context",
-    "prompt",
     "rag",
     "lost-in-the-middle",
-    "typescript"
+    "context-window",
+    "context-packing",
+    "prompt-engineering",
+    "token-budget"
   ],
   "engines": {
     "node": ">=22.18"
